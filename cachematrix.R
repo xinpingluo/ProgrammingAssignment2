@@ -1,15 +1,46 @@
-## Put comments here that give an overall description of what your
-## functions do
+#contains functions:
+#makeCacheMatrix
+#cacheSolve
 
-## Write a short comment describing this function
 
-makeCacheMatrix <- function(x = matrix()) {
-
+#makeCacheMatrix: This function creates a special "matrix" object that can cache its inverse.
+makeCacheMatrix <- function (x = matrix ()) {
+  inverse <- NULL
+  
+  #set matrix
+  set <- function (y) {
+    x <<- y
+    inverse <<- NULL
+  }
+  
+  #get matrix
+  get <- function() x
+  
+  #store inverse into makecachematrix object
+  setinverse <-  function (solve) inverse <<- solve
+  
+  getinverse <- function() inverse
+  list(set = set, get = get, setinverse=setinverse, getinverse = getinverse)  
 }
 
-
-## Write a short comment describing this function
-
+#cacheSolve: This function computes the inverse of the special "matrix" returned by 
 cacheSolve <- function(x, ...) {
-        ## Return a matrix that is the inverse of 'x'
+  inverse <- x$getinverse()
+  # if inverse has been computed already, it can be returned
+  if (!is.null(inverse)){
+    message("getting cached inverse")
+    return(inverse)
+  }
+  # otherwise - compute inverse
+  data <- x$get()
+  inverse <- solve(data, ...)
+  x$setinverse(inverse)
+  inverse
 }
+
+#some test values
+testmatrix <- matrix(1:4,2,2)
+z <- makeCacheMatrix (x= testmatrix)
+solved <- cacheSolve(z)
+test_solved  <- cacheSolve(z) %*% z$get() 
+#result should be an identity matrix of size 2x2, if the matrix is solvable
